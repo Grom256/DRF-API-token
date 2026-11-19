@@ -1,7 +1,20 @@
-from rest_framework import filters, permissions, viewsets
+from rest_framework import filters, permissions, status, viewsets
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from .models import Author, Book
 from .serializers import AuthorSerializer, BookSerializer
+
+
+class TokenLogoutView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        if request.auth:
+            request.auth.delete()
+        elif hasattr(request.user, "auth_token"):
+            request.user.auth_token.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class AuthorViewSet(viewsets.ReadOnlyModelViewSet):
